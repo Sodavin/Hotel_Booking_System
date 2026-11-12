@@ -46,9 +46,28 @@ namespace Hotel_Booking_System
 
     public static class DatabaseHelper
     {
-        // Connection string configured for XAMPP MySQL running on port 3307
-        public static string ConnectionString { get; set; } = 
-            "Server=localhost;Port=3307;Database=grandstay_hotel;User ID=root;Password=;AllowPublicKeyRetrieval=True;SslMode=None;";
+        private static string _connectionString = "";
+        public static int ActivePort { get; private set; } = 3307;
+        public static string ServerHost { get; set; } = "localhost";
+        public static string DatabaseName { get; set; } = "grandstay_hotel";
+        public static string UserId { get; set; } = "root";
+        public static string Password { get; set; } = "";
+        public static bool IsConnected { get; private set; } = false;
+
+        public static string ConnectionString
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(_connectionString)) return _connectionString;
+                return $"Server={ServerHost};Port={ActivePort};Database={DatabaseName};User ID={UserId};Password={Password};AllowPublicKeyRetrieval=True;SslMode=None;";
+            }
+            set => _connectionString = value;
+        }
+
+        private static string GetServerConnectionString(int port)
+        {
+            return $"Server={ServerHost};Port={port};User ID={UserId};Password={Password};AllowPublicKeyRetrieval=True;SslMode=None;Connection Timeout=2;";
+        }
 
         public static MySqlConnection GetConnection()
         {
@@ -75,8 +94,42 @@ namespace Hotel_Booking_System
         {
             try
             {
+                // Auto-detect port (checks 3307 first for local development, then 3306 for standard team XAMPP)
+                int[] candidatePorts = { 3307, 3306 };
+                bool portFound = false;
+
+                foreach (int port in candidatePorts)
+                {
+                    try
+                    {
+                        using var serverConn = new MySqlConnection(GetServerConnectionString(port));
+                        serverConn.Open();
+
+                        // Auto-create database if not exists
+                        using var cmdDb = new MySqlCommand($"CREATE DATABASE IF NOT EXISTS `{DatabaseName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;", serverConn);
+                        cmdDb.ExecuteNonQuery();
+
+                        ActivePort = port;
+                        portFound = true;
+                        serverConn.Close();
+                        break;
+                    }
+                    catch
+                    {
+                        // Try next candidate port
+                    }
+                }
+
+                if (!portFound)
+                {
+                    IsConnected = false;
+                    System.Diagnostics.Debug.WriteLine("[DatabaseHelper]: MySQL service is not reachable on ports 3307 or 3306. Operating in offline fallback mode.");
+                    return;
+                }
+
                 using var conn = GetConnection();
                 conn.Open();
+                IsConnected = true;
 
                 // 1. Create Users Table
                 string createUsersTable = @"
