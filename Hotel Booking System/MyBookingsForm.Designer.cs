@@ -41,7 +41,7 @@ namespace Hotel_Booking_System
             pnlHeader.Dock = DockStyle.Top;
             pnlHeader.Location = new Point(0, 0);
             pnlHeader.Name = "pnlHeader";
-            pnlHeader.Size = new Size(960, 55);
+            pnlHeader.Size = new Size(1200, 55);
             pnlHeader.TabIndex = 0;
             pnlHeader.MouseDown += pnlHeader_MouseDown;
             // 
@@ -52,7 +52,6 @@ namespace Hotel_Booking_System
             lblTitle.ForeColor = Color.White;
             lblTitle.Location = new Point(20, 14);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(330, 25);
             lblTitle.TabIndex = 1;
             lblTitle.Text = "📅 GrandStay — My Reservations";
             lblTitle.MouseDown += pnlHeader_MouseDown;
@@ -67,7 +66,7 @@ namespace Hotel_Booking_System
             btnClose.FlatStyle = FlatStyle.Flat;
             btnClose.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnClose.ForeColor = Color.White;
-            btnClose.Location = new Point(915, 8);
+            btnClose.Location = new Point(1155, 8);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(35, 38);
             btnClose.TabIndex = 0;
@@ -82,7 +81,6 @@ namespace Hotel_Booking_System
             lblUserBadge.ForeColor = Color.FromArgb(23, 45, 80);
             lblUserBadge.Location = new Point(25, 75);
             lblUserBadge.Name = "lblUserBadge";
-            lblUserBadge.Size = new Size(300, 32);
             lblUserBadge.TabIndex = 1;
             lblUserBadge.Text = "Your Active Reservations";
             // 
@@ -116,16 +114,16 @@ namespace Hotel_Booking_System
             dgvBookings.RowsDefaultCellStyle = dataGridViewCellStyle2;
             dgvBookings.RowTemplate.Height = 38;
             dgvBookings.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvBookings.Size = new Size(910, 360);
+            dgvBookings.Size = new Size(1150, 380);
             dgvBookings.TabIndex = 2;
             // 
             // pnlGuestNotice
             // 
             pnlGuestNotice.BackColor = Color.FromArgb(254, 249, 231);
             pnlGuestNotice.Controls.Add(lblGuestNotice);
-            pnlGuestNotice.Location = new Point(25, 495);
+            pnlGuestNotice.Location = new Point(25, 520);
             pnlGuestNotice.Name = "pnlGuestNotice";
-            pnlGuestNotice.Size = new Size(540, 50);
+            pnlGuestNotice.Size = new Size(680, 50);
             pnlGuestNotice.TabIndex = 3;
             // 
             // lblGuestNotice
@@ -135,7 +133,6 @@ namespace Hotel_Booking_System
             lblGuestNotice.ForeColor = Color.FromArgb(125, 102, 8);
             lblGuestNotice.Location = new Point(12, 14);
             lblGuestNotice.Name = "lblGuestNotice";
-            lblGuestNotice.Size = new Size(480, 20);
             lblGuestNotice.TabIndex = 0;
             lblGuestNotice.Text = "💡 Notice: Sign in to synchronize your bookings and access full invoices.";
             // 
@@ -147,9 +144,9 @@ namespace Hotel_Booking_System
             btnCancelBooking.FlatStyle = FlatStyle.Flat;
             btnCancelBooking.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnCancelBooking.ForeColor = Color.FromArgb(192, 57, 43);
-            btnCancelBooking.Location = new Point(590, 495);
+            btnCancelBooking.Location = new Point(730, 520);
             btnCancelBooking.Name = "btnCancelBooking";
-            btnCancelBooking.Size = new Size(210, 48);
+            btnCancelBooking.Size = new Size(220, 48);
             btnCancelBooking.TabIndex = 4;
             btnCancelBooking.Text = "Cancel Selected";
             btnCancelBooking.UseVisualStyleBackColor = false;
@@ -163,9 +160,9 @@ namespace Hotel_Booking_System
             btnCloseBottom.FlatStyle = FlatStyle.Flat;
             btnCloseBottom.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnCloseBottom.ForeColor = Color.White;
-            btnCloseBottom.Location = new Point(815, 495);
+            btnCloseBottom.Location = new Point(965, 520);
             btnCloseBottom.Name = "btnCloseBottom";
-            btnCloseBottom.Size = new Size(120, 48);
+            btnCloseBottom.Size = new Size(210, 48);
             btnCloseBottom.TabIndex = 5;
             btnCloseBottom.Text = "Done";
             btnCloseBottom.UseVisualStyleBackColor = false;
@@ -176,7 +173,7 @@ namespace Hotel_Booking_System
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(245, 247, 250);
-            ClientSize = new Size(960, 570);
+            ClientSize = new Size(1200, 610);
             Controls.Add(btnCloseBottom);
             Controls.Add(btnCancelBooking);
             Controls.Add(pnlGuestNotice);

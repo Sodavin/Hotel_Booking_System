@@ -45,6 +45,8 @@ namespace Hotel_Booking_System
                 if (dbTable.Rows.Count > 0)
                 {
                     dgvBookings.DataSource = dbTable;
+                    if (dgvBookings.Columns.Contains("BookingId"))
+                        dgvBookings.Columns["BookingId"].Visible = false;
                     return;
                 }
             }
@@ -81,6 +83,8 @@ namespace Hotel_Booking_System
             }
 
             dgvBookings.DataSource = dtBookings;
+            if (dgvBookings.Columns.Contains("BookingId"))
+                dgvBookings.Columns["BookingId"].Visible = false;
         }
 
         private void btnCancelBooking_Click(object sender, EventArgs e)

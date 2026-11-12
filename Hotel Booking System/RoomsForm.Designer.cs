@@ -39,7 +39,7 @@ namespace Hotel_Booking_System
             pnlHeader.Dock = DockStyle.Top;
             pnlHeader.Location = new Point(0, 0);
             pnlHeader.Name = "pnlHeader";
-            pnlHeader.Size = new Size(1020, 55);
+            pnlHeader.Size = new Size(1100, 55);
             pnlHeader.TabIndex = 0;
             pnlHeader.MouseDown += pnlHeader_MouseDown;
             // 
@@ -50,7 +50,6 @@ namespace Hotel_Booking_System
             lblTitle.ForeColor = Color.White;
             lblTitle.Location = new Point(20, 14);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(330, 25);
             lblTitle.TabIndex = 1;
             lblTitle.Text = "🏨 GrandStay — Rooms & Luxury Suites";
             lblTitle.MouseDown += pnlHeader_MouseDown;
@@ -65,7 +64,7 @@ namespace Hotel_Booking_System
             btnClose.FlatStyle = FlatStyle.Flat;
             btnClose.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnClose.ForeColor = Color.White;
-            btnClose.Location = new Point(975, 8);
+            btnClose.Location = new Point(1055, 8);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(35, 38);
             btnClose.TabIndex = 0;
@@ -84,48 +83,18 @@ namespace Hotel_Booking_System
             pnlFilterBar.Dock = DockStyle.Top;
             pnlFilterBar.Location = new Point(0, 55);
             pnlFilterBar.Name = "pnlFilterBar";
-            pnlFilterBar.Size = new Size(1020, 60);
+            pnlFilterBar.Size = new Size(1100, 65);
             pnlFilterBar.TabIndex = 1;
             // 
-            // lblResultCount
+            // lblLocFilter
             // 
-            lblResultCount.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            lblResultCount.AutoSize = true;
-            lblResultCount.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblResultCount.ForeColor = Color.FromArgb(23, 45, 80);
-            lblResultCount.Location = new Point(735, 20);
-            lblResultCount.Name = "lblResultCount";
-            lblResultCount.Size = new Size(245, 21);
-            lblResultCount.TabIndex = 4;
-            lblResultCount.Text = "Showing 6 accommodations";
-            // 
-            // cmbTypeFilter
-            // 
-            cmbTypeFilter.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbTypeFilter.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            cmbTypeFilter.FormattingEnabled = true;
-            cmbTypeFilter.Items.AddRange(new object[] {
-            "All Types",
-            "Suite",
-            "Villa",
-            "Deluxe",
-            "Bungalow"});
-            cmbTypeFilter.Location = new Point(460, 16);
-            cmbTypeFilter.Name = "cmbTypeFilter";
-            cmbTypeFilter.Size = new Size(200, 29);
-            cmbTypeFilter.TabIndex = 3;
-            cmbTypeFilter.SelectedIndexChanged += cmbFilter_SelectedIndexChanged;
-            // 
-            // lblTypeFilter
-            // 
-            lblTypeFilter.AutoSize = true;
-            lblTypeFilter.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblTypeFilter.ForeColor = Color.FromArgb(23, 45, 80);
-            lblTypeFilter.Location = new Point(360, 19);
-            lblTypeFilter.Name = "lblTypeFilter";
-            lblTypeFilter.Size = new Size(100, 21);
-            lblTypeFilter.TabIndex = 2;
-            lblTypeFilter.Text = "Room Type:";
+            lblLocFilter.AutoSize = true;
+            lblLocFilter.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblLocFilter.ForeColor = Color.FromArgb(23, 45, 80);
+            lblLocFilter.Location = new Point(25, 20);
+            lblLocFilter.Name = "lblLocFilter";
+            lblLocFilter.TabIndex = 0;
+            lblLocFilter.Text = "Destination:";
             // 
             // cmbLocationFilter
             // 
@@ -140,32 +109,59 @@ namespace Hotel_Booking_System
             "Kampot",
             "Battambang",
             "Kep"});
-            cmbLocationFilter.Location = new Point(135, 16);
+            cmbLocationFilter.Location = new Point(130, 16);
             cmbLocationFilter.Name = "cmbLocationFilter";
             cmbLocationFilter.Size = new Size(195, 29);
             cmbLocationFilter.TabIndex = 1;
             cmbLocationFilter.SelectedIndexChanged += cmbFilter_SelectedIndexChanged;
             // 
-            // lblLocFilter
+            // lblTypeFilter
             // 
-            lblLocFilter.AutoSize = true;
-            lblLocFilter.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblLocFilter.ForeColor = Color.FromArgb(23, 45, 80);
-            lblLocFilter.Location = new Point(25, 19);
-            lblLocFilter.Name = "lblLocFilter";
-            lblLocFilter.Size = new Size(106, 21);
-            lblLocFilter.TabIndex = 0;
-            lblLocFilter.Text = "Destination:";
+            lblTypeFilter.AutoSize = true;
+            lblTypeFilter.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblTypeFilter.ForeColor = Color.FromArgb(23, 45, 80);
+            lblTypeFilter.Location = new Point(352, 20);
+            lblTypeFilter.Name = "lblTypeFilter";
+            lblTypeFilter.TabIndex = 2;
+            lblTypeFilter.Text = "Room Type:";
+            // 
+            // cmbTypeFilter
+            // 
+            cmbTypeFilter.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbTypeFilter.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            cmbTypeFilter.FormattingEnabled = true;
+            cmbTypeFilter.Items.AddRange(new object[] {
+            "All Types",
+            "Suite",
+            "Presidential",
+            "Deluxe",
+            "Standard"});
+            cmbTypeFilter.Location = new Point(462, 16);
+            cmbTypeFilter.Name = "cmbTypeFilter";
+            cmbTypeFilter.Size = new Size(195, 29);
+            cmbTypeFilter.TabIndex = 3;
+            cmbTypeFilter.SelectedIndexChanged += cmbFilter_SelectedIndexChanged;
+            // 
+            // lblResultCount
+            // 
+            lblResultCount.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            lblResultCount.AutoSize = true;
+            lblResultCount.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblResultCount.ForeColor = Color.FromArgb(23, 45, 80);
+            lblResultCount.Location = new Point(690, 20);
+            lblResultCount.Name = "lblResultCount";
+            lblResultCount.TabIndex = 4;
+            lblResultCount.Text = "Showing 6 accommodations";
             // 
             // flpRoomsContainer
             // 
             flpRoomsContainer.AutoScroll = true;
             flpRoomsContainer.BackColor = Color.FromArgb(245, 247, 250);
             flpRoomsContainer.Dock = DockStyle.Fill;
-            flpRoomsContainer.Location = new Point(0, 115);
+            flpRoomsContainer.Location = new Point(0, 120);
             flpRoomsContainer.Name = "flpRoomsContainer";
-            flpRoomsContainer.Padding = new Padding(15, 10, 15, 10);
-            flpRoomsContainer.Size = new Size(1020, 565);
+            flpRoomsContainer.Padding = new Padding(20, 15, 20, 15);
+            flpRoomsContainer.Size = new Size(1100, 580);
             flpRoomsContainer.TabIndex = 2;
             // 
             // RoomsForm
@@ -173,7 +169,7 @@ namespace Hotel_Booking_System
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(245, 247, 250);
-            ClientSize = new Size(1020, 680);
+            ClientSize = new Size(1100, 700);
             Controls.Add(flpRoomsContainer);
             Controls.Add(pnlFilterBar);
             Controls.Add(pnlHeader);
