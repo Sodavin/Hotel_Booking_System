@@ -1,10 +1,20 @@
+using System.Runtime.InteropServices;
+
 namespace Hotel_Booking_System
 {
     public partial class Form1 : Form
     {
+        [DllImport("user32.dll")]
+        public static extern bool ReleaseCapture();
+        [DllImport("user32.dll")]
+        public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+
         public Form1()
         {
             InitializeComponent();
+            this.DoubleBuffered = true;
+            this.WindowState = FormWindowState.Maximized;
+
             cmbDestination.Items.Clear();
             cmbDestination.Items.Add("Phnom Penh");
             cmbDestination.Items.Add("Siem Reap");
@@ -14,27 +24,38 @@ namespace Hotel_Booking_System
             cmbDestination.Items.Add("Kep");
 
             cmbDestination.Text = "Select Location";
-            // Prevent check-in from selecting past dates
-            dtpCheckIn.MinDate = DateTime.Today;
-            dtpCheckIn.Value = DateTime.Today;
 
-            // Set initial check-out minimum to tomorrow
-            dtpCheckOut.MinDate = DateTime.Today.AddDays(1);
-            dtpCheckOut.Value = DateTime.Today.AddDays(1);
-
-            UpdateStayDuration();
+            // Configure custom calendar (starts with no dates selected)
+            customCalendar.DatesChanged += (s, e) => UpdateDateDisplay();
+            customCalendar.CloseRequested += (s, e) => customCalendar.Visible = false;
+            UpdateDateDisplay();
+            UpdateCounts();
 
             // Subscribe to session authentication changes
             SessionManager.OnSessionChanged += UpdateUserSessionUI;
             UpdateUserSessionUI();
 
-            panel1.Resize += (s, e) => CenterNavbarControls();
-            CenterNavbarControls();
+            this.Resize += (s, e) => PerformResponsiveLayout();
+            this.Click += (s, e) => ClosePopups();
+            pictureBox1.Click += (s, e) => ClosePopups();
+            panel3.Click += (s, e) => ClosePopups();
+            panel2.Click += (s, e) => ClosePopups();
+
+            PerformResponsiveLayout();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            CenterNavbarControls();
+            PerformResponsiveLayout();
+        }
+
+        private void Form1_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left && this.WindowState != FormWindowState.Maximized)
+            {
+                ReleaseCapture();
+                SendMessage(Handle, 0xA1, 0x2, 0);
+            }
         }
 
 
@@ -137,126 +158,147 @@ namespace Hotel_Booking_System
 
         }
 
-        private void dtpCheckIn_ValueChanged(object sender, EventArgs e)
+        private void UpdateDateDisplay()
         {
-            // Ensure check-out minimum date is at least the day after check-in
-            dtpCheckOut.MinDate = dtpCheckIn.Value.Date.AddDays(1);
+            if (customCalendar == null || lblDateDisplay == null || lblStayDuration == null) return;
 
-            // If the current check-out date is now older than or equal to the new check-in date,
-            // automatically push check-out forward by 1 day
-            if (dtpCheckOut.Value.Date <= dtpCheckIn.Value.Date)
+            DateTime? inDate  = customCalendar.TotalNights > 0 ? customCalendar.CheckInDate  : (DateTime?)null;
+            DateTime? outDate = customCalendar.TotalNights > 0 ? customCalendar.CheckOutDate : (DateTime?)null;
+
+            if (inDate.HasValue && outDate.HasValue)
             {
-                dtpCheckOut.Value = dtpCheckIn.Value.Date.AddDays(1);
+                lblDateDisplay.Text  = $"{inDate.Value:ddd, MMM dd} → {outDate.Value:ddd, MMM dd}";
+                int nights = customCalendar.TotalNights;
+                string nightText = nights == 1 ? "1 night" : $"{nights} nights";
+                string dayText   = (nights + 1) == 1 ? "1 day" : $"{nights + 1} days";
+                lblStayDuration.Text = $"🌙 {nightText} stay ({dayText})";
             }
-
-            UpdateStayDuration();
-        }
-
-        private void dtpCheckOut_ValueChanged(object sender, EventArgs e)
-        {
-            UpdateStayDuration();
-        }
-
-        private void UpdateStayDuration()
-        {
-            int nights = (dtpCheckOut.Value.Date - dtpCheckIn.Value.Date).Days;
-            if (nights <= 0)
+            else if (inDate.HasValue)
             {
-                nights = 1;
+                lblDateDisplay.Text  = $"{inDate.Value:ddd, MMM dd} → Select check-out";
+                lblStayDuration.Text = "🌙 Pick a check-out date";
             }
-
-            string nightText = nights == 1 ? "1 night" : $"{nights} nights";
-            string dayText = (nights + 1) == 1 ? "1 day" : $"{nights + 1} days";
-            lblStayDuration.Text = $"🌙 {nightText} stay ({dayText})";
+            else
+            {
+                lblDateDisplay.Text  = "Select check-in date";
+                lblStayDuration.Text = "🌙 Pick your dates";
+            }
         }
 
-        private void label1_Click_2(object sender, EventArgs e)
+        private void pnlDateCard_Click(object sender, EventArgs e)
         {
+            if (pnlPopup != null) pnlPopup.Visible = false;
+            if (customCalendar == null) return;
 
+            customCalendar.Visible = !customCalendar.Visible;
+            if (customCalendar.Visible)
+            {
+                UpdateCalendarPosition();
+                customCalendar.BringToFront();
+            }
+        }
+
+        private void pnlGuestCard_Click(object sender, EventArgs e)
+        {
+            if (customCalendar != null) customCalendar.Visible = false;
+            if (pnlPopup == null) return;
+
+            pnlPopup.Visible = !pnlPopup.Visible;
+            if (pnlPopup.Visible)
+            {
+                UpdatePopupPosition();
+                pnlPopup.BringToFront();
+            }
+        }
+
+        private void ClosePopups()
+        {
+            if (pnlPopup != null && pnlPopup.Visible)
+            {
+                pnlPopup.Visible = false;
+            }
+            if (customCalendar != null && customCalendar.Visible)
+            {
+                customCalendar.Visible = false;
+            }
+        }
+
+        private void UpdateCalendarPosition()
+        {
+            if (panel2 != null && pnlDateCard != null && customCalendar != null)
+            {
+                customCalendar.Left = panel2.Left + pnlDateCard.Left;
+                customCalendar.Top = panel2.Bottom + 4;
+                customCalendar.BringToFront();
+            }
+        }
+
+        private void UpdatePopupPosition()
+        {
+            if (panel2 != null && pnlGuestCard != null && pnlPopup != null)
+            {
+                pnlPopup.Left = panel2.Left + pnlGuestCard.Left;
+                pnlPopup.Top = panel2.Bottom + 4;
+                pnlPopup.BringToFront();
+            }
+        }
+
+        private void pnlDestCard_Paint(object sender, PaintEventArgs e)
+        {
+            ApplyRoundedCorners(pnlDestCard, 14);
+        }
+
+        private void pnlDateCard_Paint(object sender, PaintEventArgs e)
+        {
+            ApplyRoundedCorners(pnlDateCard, 14);
+        }
+
+        private void pnlGuestCard_Paint(object sender, PaintEventArgs e)
+        {
+            ApplyRoundedCorners(pnlGuestCard, 14);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            using var roomsForm = new RoomsForm();
+            roomsForm.ShowDialog(this);
         }
 
         private void panel1_Paint_1(object sender, PaintEventArgs e)
         {
-            //ApplyRoundedCorners(panel1, 50);
-
-        }
-
-
-        private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
-        {
-            using (Pen borderPen = new Pen(Color.LightGray, 1))
-            {
-                // Draw the border rectangle along the exact edges of the panel
-                e.Graphics.DrawRectangle(borderPen, 0, 0, pnlTrigger.Width - 1, pnlTrigger.Height - 1);
-            }
         }
 
         private void label2_Click(object sender, EventArgs e)
         {
-
         }
 
         private void pictureBox4_Click(object sender, EventArgs e)
         {
-
         }
 
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
-
         }
 
         private void pictureBox5_Click(object sender, EventArgs e)
         {
-
         }
 
         private void panel4_Paint_1(object sender, PaintEventArgs e)
         {
-            ApplyRoundedCorners(pnlPopup, 20);
-
+            ApplyRoundedCorners(pnlPopup, 16);
         }
 
-        private int rooms = 1;
-        private int adults = 1;
-        private int children = 0;
-
-        // Toggle popup visibility when clicking the trigger container, arrow, or text labels
-        private void pnlTrigger_Click(object sender, EventArgs e)
+        private void btnGuestsDone_Click(object sender, EventArgs e)
         {
-            pnlPopup.Visible = !pnlPopup.Visible;
-        }
-
-        private void picArrow_Click(object sender, EventArgs e)
-        {
-            pnlPopup.Visible = !pnlPopup.Visible;
-        }
-
-        private void lblTriggerAdults_Click(object sender, EventArgs e)
-        {
-            pnlPopup.Visible = !pnlPopup.Visible;
-        }
-
-        private void lblTriggerRoom_Click(object sender, EventArgs e)
-        {
-            pnlPopup.Visible = !pnlPopup.Visible;
-        }
-
-        // Room Steppers
-        private void picPlusRoom_Click(object sender, EventArgs e)
-        {
-            rooms++;
-            UpdateCounts();
-        }
-
-        private void picMinusRoom_Click(object sender, EventArgs e)
-        {
-            if (rooms > 1)
+            if (pnlPopup != null)
             {
-                rooms--;
-                UpdateCounts();
+                pnlPopup.Visible = false;
             }
         }
+
+        private int adults = 1;
+        private int children = 0;
 
         // Adult Steppers
         private void picPlusAdult_Click(object sender, EventArgs e)
@@ -293,25 +335,18 @@ namespace Hotel_Booking_System
         // Refresh UI Labels and Top Trigger Display
         private void UpdateCounts()
         {
-            // Update numbers inside the popup dropdown rows
-            lblRoomCount.Text = rooms.ToString();
-            lblAdultCount.Text = adults.ToString();
-            lblChildCount.Text = children.ToString();
+            if (lblAdultCount != null) lblAdultCount.Text = adults.ToString();
+            if (lblChildCount != null) lblChildCount.Text = children.ToString();
 
-            // Line 1: Format adults and conditional children text
-            string adultText = adults == 1 ? "1 adult" : $"{adults} adults";
-            string childText = "";
+            string adultText = adults == 1 ? "1 Adult" : $"{adults} Adults";
+            string childText = children == 0 ? "" : (children == 1 ? ", 1 Child" : $", {children} Children");
+            if (label5 != null) label5.Text = adultText + childText;
 
-            if (children > 0)
+            int totalGuests = adults + children;
+            if (lblGuestSub != null)
             {
-                childText = children == 1 ? ",1 child" : $",{children} children";
+                lblGuestSub.Text = children > 0 ? $"{totalGuests} Guests total" : "All ages (18+ / 0-17)";
             }
-
-            label5.Text = adultText + childText;
-
-            // Line 2: Format room text
-            string roomText = rooms == 1 ? "1 room" : $"{rooms} rooms";
-            label6.Text = roomText;
         }
 
         #region Navigation & Authentication Event Handlers
@@ -345,6 +380,74 @@ namespace Hotel_Booking_System
             CenterNavbarControls();
         }
 
+        private void PerformResponsiveLayout()
+        {
+            if (this.ClientSize.Width <= 0 || this.ClientSize.Height <= 0) return;
+
+            this.SuspendLayout();
+
+            // 1. Maintain clean placement for top title bar controls
+            int topBtnY = 3;
+            pictureBox_close.Location = new Point(this.ClientSize.Width - 46, topBtnY);
+            pictureBox_max.Location = new Point(this.ClientSize.Width - 90, topBtnY);
+            pictureBox_min.Location = new Point(this.ClientSize.Width - 134, topBtnY);
+
+            // 2. Adjust Navbar panel1 width and vertically center navigation items
+            panel1.Location = new Point(0, 43);
+            panel1.Width = this.ClientSize.Width;
+            panel1.Height = 74;
+            CenterNavbarControls();
+
+            // 3. Center Search Container (panel2) horizontally
+            int searchTop = panel1.Bottom + 22;
+            panel2.Top = searchTop;
+            panel2.Size = new Size(1475, 146);
+            if (this.ClientSize.Width >= panel2.Width + 40)
+            {
+                panel2.Left = (this.ClientSize.Width - panel2.Width) / 2;
+            }
+            else
+            {
+                panel2.Left = Math.Max(10, (this.ClientSize.Width - panel2.Width) / 2);
+            }
+            ApplyRoundedCorners(panel2, 20);
+
+            // 4. Update dropdown / calendar position if open
+            if (pnlPopup != null && pnlPopup.Visible) UpdatePopupPosition();
+            if (customCalendar != null && customCalendar.Visible) UpdateCalendarPosition();
+
+            // 5. Main content area: pictureBox1 (Hero Visual) & panel3 (Room Cards Container)
+            int contentTop = panel2.Bottom + 22;
+            int contentHeight = Math.Max(260, this.ClientSize.Height - contentTop - 25);
+            int marginX = 30;
+            int gap = 20;
+            int availableWidth = this.ClientSize.Width - (marginX * 2);
+
+            if (availableWidth > 650)
+            {
+                // Responsive side-by-side layout
+                int picWidth = Math.Clamp((int)(availableWidth * 0.42), 420, 840);
+                int panel3Width = availableWidth - picWidth - gap;
+
+                pictureBox1.Location = new Point(marginX, contentTop);
+                pictureBox1.Size = new Size(picWidth, contentHeight);
+                pictureBox1.Visible = true;
+
+                panel3.Location = new Point(pictureBox1.Right + gap, contentTop);
+                panel3.Size = new Size(panel3Width, contentHeight);
+            }
+            else
+            {
+                // Narrow screen fallback
+                panel3.Location = new Point(marginX, contentTop);
+                panel3.Size = new Size(availableWidth, contentHeight);
+            }
+
+            ApplyRoundedCorners(panel3, 20);
+
+            this.ResumeLayout();
+        }
+
         private void CenterNavbarControls()
         {
             if (panel1 == null) return;
@@ -363,6 +466,7 @@ namespace Hotel_Booking_System
             if (flpNavRight != null)
             {
                 flpNavRight.Top = Math.Max(0, (h - flpNavRight.Height) / 2);
+                flpNavRight.Left = Math.Max(flpNavLeft != null ? flpNavLeft.Right + 15 : 0, panel1.ClientSize.Width - flpNavRight.Width - 25);
             }
         }
 

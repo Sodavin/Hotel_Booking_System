@@ -463,6 +463,178 @@ namespace Hotel_Booking_System
             }
         }
 
+        public static bool AddRoom(RoomItem room, out string errorMessage)
+        {
+            errorMessage = "";
+            try
+            {
+                using var conn = GetConnection();
+                conn.Open();
+
+                string checkQuery = "SELECT COUNT(*) FROM rooms WHERE room_number = @roomNum;";
+                using (var checkCmd = new MySqlCommand(checkQuery, conn))
+                {
+                    checkCmd.Parameters.AddWithValue("@roomNum", room.RoomNumber.Trim());
+                    long count = Convert.ToInt64(checkCmd.ExecuteScalar());
+                    if (count > 0)
+                    {
+                        errorMessage = $"Room number '{room.RoomNumber}' already exists. Please choose a unique room number.";
+                        return false;
+                    }
+                }
+
+                string insertQuery = @"
+                    INSERT INTO rooms 
+                    (room_number, room_name, room_type, destination, price_per_night, max_adults, max_children, amenities, image_path, status, description)
+                    VALUES 
+                    (@roomNumber, @roomName, @roomType, @destination, @price, @adults, @children, @amenities, @imagePath, @status, @description);";
+
+                using var cmd = new MySqlCommand(insertQuery, conn);
+                cmd.Parameters.AddWithValue("@roomNumber", room.RoomNumber.Trim());
+                cmd.Parameters.AddWithValue("@roomName", room.RoomName.Trim());
+                cmd.Parameters.AddWithValue("@roomType", room.RoomType.Trim());
+                cmd.Parameters.AddWithValue("@destination", room.Destination.Trim());
+                cmd.Parameters.AddWithValue("@price", room.PricePerNight);
+                cmd.Parameters.AddWithValue("@adults", room.MaxAdults);
+                cmd.Parameters.AddWithValue("@children", room.MaxChildren);
+                cmd.Parameters.AddWithValue("@amenities", room.Amenities.Trim());
+                cmd.Parameters.AddWithValue("@imagePath", string.IsNullOrEmpty(room.ImagePath) ? (object)DBNull.Value : room.ImagePath);
+                cmd.Parameters.AddWithValue("@status", string.IsNullOrEmpty(room.Status) ? "Available" : room.Status);
+                cmd.Parameters.AddWithValue("@description", room.Description.Trim());
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+                return false;
+            }
+        }
+
+        public static bool UpdateRoom(RoomItem room, out string errorMessage)
+        {
+            errorMessage = "";
+            try
+            {
+                using var conn = GetConnection();
+                conn.Open();
+
+                string checkQuery = "SELECT COUNT(*) FROM rooms WHERE room_number = @roomNum AND id != @id;";
+                using (var checkCmd = new MySqlCommand(checkQuery, conn))
+                {
+                    checkCmd.Parameters.AddWithValue("@roomNum", room.RoomNumber.Trim());
+                    checkCmd.Parameters.AddWithValue("@id", room.Id);
+                    long count = Convert.ToInt64(checkCmd.ExecuteScalar());
+                    if (count > 0)
+                    {
+                        errorMessage = $"Room number '{room.RoomNumber}' is already assigned to another room.";
+                        return false;
+                    }
+                }
+
+                string updateQuery = @"
+                    UPDATE rooms SET 
+                        room_number = @roomNumber,
+                        room_name = @roomName,
+                        room_type = @roomType,
+                        destination = @destination,
+                        price_per_night = @price,
+                        max_adults = @adults,
+                        max_children = @children,
+                        amenities = @amenities,
+                        image_path = @imagePath,
+                        status = @status,
+                        description = @description
+                    WHERE id = @id;";
+
+                using var cmd = new MySqlCommand(updateQuery, conn);
+                cmd.Parameters.AddWithValue("@id", room.Id);
+                cmd.Parameters.AddWithValue("@roomNumber", room.RoomNumber.Trim());
+                cmd.Parameters.AddWithValue("@roomName", room.RoomName.Trim());
+                cmd.Parameters.AddWithValue("@roomType", room.RoomType.Trim());
+                cmd.Parameters.AddWithValue("@destination", room.Destination.Trim());
+                cmd.Parameters.AddWithValue("@price", room.PricePerNight);
+                cmd.Parameters.AddWithValue("@adults", room.MaxAdults);
+                cmd.Parameters.AddWithValue("@children", room.MaxChildren);
+                cmd.Parameters.AddWithValue("@amenities", room.Amenities.Trim());
+                cmd.Parameters.AddWithValue("@imagePath", string.IsNullOrEmpty(room.ImagePath) ? (object)DBNull.Value : room.ImagePath);
+                cmd.Parameters.AddWithValue("@status", string.IsNullOrEmpty(room.Status) ? "Available" : room.Status);
+                cmd.Parameters.AddWithValue("@description", room.Description.Trim());
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+                return false;
+            }
+        }
+
+        public static bool DeleteRoom(int roomId, out string errorMessage)
+        {
+            errorMessage = "";
+            try
+            {
+                using var conn = GetConnection();
+                conn.Open();
+
+                string checkBookingQuery = "SELECT COUNT(*) FROM bookings WHERE room_id = @id AND booking_status IN ('Confirmed', 'Checked In');";
+                using (var checkCmd = new MySqlCommand(checkBookingQuery, conn))
+                {
+                    checkCmd.Parameters.AddWithValue("@id", roomId);
+                    long activeBookings = Convert.ToInt64(checkCmd.ExecuteScalar());
+                    if (activeBookings > 0)
+                    {
+                        errorMessage = $"Cannot delete this room because it currently has {activeBookings} active reservation(s). Please change its status to 'Maintenance' instead or resolve the bookings first.";
+                        return false;
+                    }
+                }
+
+                string deleteQuery = "DELETE FROM rooms WHERE id = @id;";
+                using var cmd = new MySqlCommand(deleteQuery, conn);
+                cmd.Parameters.AddWithValue("@id", roomId);
+                return cmd.ExecuteNonQuery() > 0;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+                return false;
+            }
+        }
+
+        public static RoomItem? GetRoomById(int roomId)
+        {
+            try
+            {
+                using var conn = GetConnection();
+                conn.Open();
+                string query = "SELECT id, room_number, room_name, room_type, destination, price_per_night, max_adults, max_children, amenities, image_path, status, description FROM rooms WHERE id = @id LIMIT 1;";
+                using var cmd = new MySqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@id", roomId);
+                using var reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    return new RoomItem
+                    {
+                        Id = reader.GetInt32("id"),
+                        RoomNumber = reader.GetString("room_number"),
+                        RoomName = reader.GetString("room_name"),
+                        RoomType = reader.GetString("room_type"),
+                        Destination = reader.GetString("destination"),
+                        PricePerNight = reader.GetDecimal("price_per_night"),
+                        MaxAdults = reader.GetInt32("max_adults"),
+                        MaxChildren = reader.GetInt32("max_children"),
+                        Amenities = reader.IsDBNull(reader.GetOrdinal("amenities")) ? "" : reader.GetString("amenities"),
+                        ImagePath = reader.IsDBNull(reader.GetOrdinal("image_path")) ? "" : reader.GetString("image_path"),
+                        Status = reader.GetString("status"),
+                        Description = reader.IsDBNull(reader.GetOrdinal("description")) ? "" : reader.GetString("description")
+                    };
+                }
+            }
+            catch { }
+            return null;
+        }
+
         // ==========================================
         // BOOKINGS QUERIES & CRUD
         // ==========================================

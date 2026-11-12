@@ -1,4 +1,5 @@
 using System.Data;
+using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 
 namespace Hotel_Booking_System
@@ -40,11 +41,46 @@ namespace Hotel_Booking_System
             this.WindowState = FormWindowState.Minimized;
         }
 
+        private void btnMax_Click(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Maximized)
+            {
+                this.WindowState = FormWindowState.Normal;
+                btnMax.Text = "🗖";
+            }
+            else
+            {
+                this.WindowState = FormWindowState.Maximized;
+                btnMax.Text = "🗗";
+            }
+        }
+
+        private void pnlKpi_Paint(object sender, PaintEventArgs e)
+        {
+            if (sender is Panel pnl)
+            {
+                using var pen = new Pen(Color.FromArgb(220, 226, 235), 1.5f);
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                var rect = new Rectangle(0, 0, pnl.Width - 1, pnl.Height - 1);
+                e.Graphics.DrawRectangle(pen, rect);
+            }
+        }
+
         private void InitializeData()
         {
             if (SessionManager.IsLoggedIn)
             {
                 lblAdminName.Text = SessionManager.CurrentUserName;
+            }
+
+            if (cmbFilterDest.Items.Count > 0 && cmbFilterDest.SelectedIndex < 0)
+            {
+                cmbFilterDest.SelectedIndex = 0;
+            }
+
+            if (cmbFilterStatus.Items.Count > 0 && cmbFilterStatus.SelectedIndex < 0)
+            {
+                cmbFilterStatus.SelectedIndex = 0;
             }
 
             RefreshKpiCards();
@@ -100,7 +136,7 @@ namespace Hotel_Booking_System
             var dt = DatabaseHelper.GetAllRoomsTable();
             if (dt.Rows.Count > 0)
             {
-                dgvRooms.DataSource = dt;
+                dtAdminRooms = dt;
             }
             else
             {
@@ -114,13 +150,111 @@ namespace Hotel_Booking_System
                     dtAdminRooms.Columns.Add("room_type", typeof(string));
                     dtAdminRooms.Columns.Add("destination", typeof(string));
                     dtAdminRooms.Columns.Add("price_per_night", typeof(decimal));
+                    dtAdminRooms.Columns.Add("max_adults", typeof(int));
+                    dtAdminRooms.Columns.Add("max_children", typeof(int));
                     dtAdminRooms.Columns.Add("status", typeof(string));
+                    dtAdminRooms.Columns.Add("amenities", typeof(string));
                 }
 
-                dtAdminRooms.Rows.Add(1, "PP-101", "Grand Royal Riverfront Suite", "Suite", "Phnom Penh", 185.00m, "Available");
-                dtAdminRooms.Rows.Add(2, "SR-201", "Angkor Heritage Garden Villa", "Suite", "Siem Reap", 230.00m, "Available");
-                dgvRooms.DataSource = dtAdminRooms;
+                dtAdminRooms.Rows.Add(1, "PP-101", "Grand Royal Riverfront Suite", "Suite", "Phnom Penh", 185.00m, 2, 1, "Available", "King Bed, City View, Free WiFi, Bathtub");
+                dtAdminRooms.Rows.Add(2, "SR-201", "Angkor Heritage Garden Villa", "Suite", "Siem Reap", 230.00m, 3, 2, "Available", "King Bed, Private Garden, Pool Access");
             }
+
+            ApplyRoomFilters();
+            FormatRoomsColumns();
+        }
+
+        private void FormatRoomsColumns()
+        {
+            if (dgvRooms.Columns["id"] is DataGridViewColumn colId)
+            {
+                colId.HeaderText = "ID";
+                colId.FillWeight = 40;
+            }
+            if (dgvRooms.Columns["room_number"] is DataGridViewColumn colRoomNum)
+            {
+                colRoomNum.HeaderText = "Room #";
+                colRoomNum.FillWeight = 70;
+            }
+            if (dgvRooms.Columns["room_name"] is DataGridViewColumn colRoomName)
+            {
+                colRoomName.HeaderText = "Room Name";
+                colRoomName.FillWeight = 160;
+            }
+            if (dgvRooms.Columns["room_type"] is DataGridViewColumn colRoomType)
+            {
+                colRoomType.HeaderText = "Category";
+                colRoomType.FillWeight = 85;
+            }
+            if (dgvRooms.Columns["destination"] is DataGridViewColumn colDest)
+            {
+                colDest.HeaderText = "Destination";
+                colDest.FillWeight = 95;
+            }
+            if (dgvRooms.Columns["price_per_night"] is DataGridViewColumn colPrice)
+            {
+                colPrice.HeaderText = "Price / Night";
+                colPrice.DefaultCellStyle.Format = "C2";
+                colPrice.FillWeight = 85;
+            }
+            if (dgvRooms.Columns["max_adults"] is DataGridViewColumn colAdults)
+            {
+                colAdults.HeaderText = "Adults";
+                colAdults.FillWeight = 50;
+            }
+            if (dgvRooms.Columns["max_children"] is DataGridViewColumn colKids)
+            {
+                colKids.HeaderText = "Kids";
+                colKids.FillWeight = 45;
+            }
+            if (dgvRooms.Columns["status"] is DataGridViewColumn colStatus)
+            {
+                colStatus.HeaderText = "Status";
+                colStatus.FillWeight = 80;
+            }
+            if (dgvRooms.Columns["amenities"] is DataGridViewColumn colAmenities)
+            {
+                colAmenities.HeaderText = "Amenities";
+                colAmenities.FillWeight = 150;
+            }
+        }
+
+        private void ApplyRoomFilters()
+        {
+            if (dtAdminRooms == null || dtAdminRooms.DefaultView == null) return;
+
+            var filterParts = new List<string>();
+
+            string search = txtRoomSearch.Text.Trim().Replace("'", "''");
+            if (!string.IsNullOrEmpty(search))
+            {
+                filterParts.Add($"(room_number LIKE '%{search}%' OR room_name LIKE '%{search}%' OR room_type LIKE '%{search}%')");
+            }
+
+            if (cmbFilterDest.SelectedIndex > 0 && cmbFilterDest.SelectedItem != null)
+            {
+                string dest = cmbFilterDest.SelectedItem.ToString()!.Replace("'", "''");
+                filterParts.Add($"destination = '{dest}'");
+            }
+
+            if (cmbFilterStatus.SelectedIndex > 0 && cmbFilterStatus.SelectedItem != null)
+            {
+                string status = cmbFilterStatus.SelectedItem.ToString()!.Replace("'", "''");
+                filterParts.Add($"status = '{status}'");
+            }
+
+            dtAdminRooms.DefaultView.RowFilter = string.Join(" AND ", filterParts);
+            dgvRooms.DataSource = dtAdminRooms.DefaultView;
+        }
+
+        private void txtRoomSearch_TextChanged(object sender, EventArgs e)
+        {
+            ApplyRoomFilters();
+        }
+
+        private void cmbFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ApplyRoomFilters();
         }
 
         private void RefreshUsersGrid()
@@ -243,10 +377,81 @@ namespace Hotel_Booking_System
             MessageBox.Show($"Booking {refCode} status updated to: {newStatus}", "Status Updated", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        // --- Room Management Actions ---
+        // --- Room Management Actions (CRUD) ---
         private void btnAddRoom_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("New rooms can be added directly in phpMyAdmin or through the Admin Inventory form.", "Room Inventory", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            using var form = new RoomEditorForm();
+            if (form.ShowDialog(this) == DialogResult.OK)
+            {
+                RefreshRoomsGrid();
+                RefreshKpiCards();
+            }
+        }
+
+        private void btnEditRoom_Click(object sender, EventArgs e)
+        {
+            EditSelectedRoom();
+        }
+
+        private void dgvRooms_DoubleClick(object sender, EventArgs e)
+        {
+            EditSelectedRoom();
+        }
+
+        private void EditSelectedRoom()
+        {
+            if (dgvRooms.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Please select a room from the inventory table to edit.", "Select Room", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var row = dgvRooms.SelectedRows[0];
+            if (row.Cells["id"]?.Value != null && int.TryParse(row.Cells["id"].Value?.ToString(), out int roomId) && roomId > 0)
+            {
+                using var form = new RoomEditorForm(roomId);
+                if (form.ShowDialog(this) == DialogResult.OK)
+                {
+                    RefreshRoomsGrid();
+                    RefreshKpiCards();
+                }
+            }
+        }
+
+        private void btnDeleteRoom_Click(object sender, EventArgs e)
+        {
+            if (dgvRooms.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Please select a room from the inventory table to delete.", "Select Room", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var row = dgvRooms.SelectedRows[0];
+            string roomNum = row.Cells["room_number"]?.Value?.ToString() ?? "";
+            string roomName = row.Cells["room_name"]?.Value?.ToString() ?? "";
+
+            if (row.Cells["id"]?.Value != null && int.TryParse(row.Cells["id"].Value?.ToString(), out int roomId) && roomId > 0)
+            {
+                var confirm = MessageBox.Show(
+                    $"Are you sure you want to delete room '{roomNum} - {roomName}'?\n\nThis will remove the room from the active inventory permanently.",
+                    "Confirm Delete Room",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+
+                if (confirm == DialogResult.Yes)
+                {
+                    if (DatabaseHelper.DeleteRoom(roomId, out string errorMessage))
+                    {
+                        MessageBox.Show($"Room '{roomNum}' deleted successfully.", "Room Deleted", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        RefreshRoomsGrid();
+                        RefreshKpiCards();
+                    }
+                    else
+                    {
+                        MessageBox.Show(errorMessage, "Cannot Delete Room", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
         }
 
         private void btnToggleRoomStatus_Click(object sender, EventArgs e)
