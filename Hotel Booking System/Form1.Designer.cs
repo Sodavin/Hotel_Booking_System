@@ -1,4 +1,4 @@
-﻿using System.Drawing.Drawing2D;
+using System.Drawing.Drawing2D;
 namespace Hotel_Booking_System
 
 {
@@ -33,6 +33,7 @@ namespace Hotel_Booking_System
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             pictureBox1 = new PictureBox();
             panel2 = new Panel();
+            lblStayDuration = new Label();
             button1 = new Button();
             label6 = new Label();
             label5 = new Label();
@@ -69,6 +70,18 @@ namespace Hotel_Booking_System
             label1 = new Label();
             panel1 = new Panel();
             pictureBox6 = new PictureBox();
+            flpNavLeft = new FlowLayoutPanel();
+            btnNavHome = new Button();
+            btnNavRooms = new Button();
+            btnNavMyBookings = new Button();
+            btnNavAbout = new Button();
+            btnNavContact = new Button();
+            flpNavRight = new FlowLayoutPanel();
+            btnAdminPortal = new Button();
+            btnSignIn = new Button();
+            pnlUserSession = new FlowLayoutPanel();
+            lblUserGreeting = new Label();
+            btnLogout = new Button();
             lblTriggerAdults = new Label();
             lblTriggerRoom = new Label();
             pictureBox5 = new PictureBox();
@@ -90,6 +103,9 @@ namespace Hotel_Booking_System
             ((System.ComponentModel.ISupportInitialize)pictureBox_min).BeginInit();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox6).BeginInit();
+            flpNavLeft.SuspendLayout();
+            flpNavRight.SuspendLayout();
+            pnlUserSession.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox5).BeginInit();
             SuspendLayout();
             // 
@@ -110,6 +126,7 @@ namespace Hotel_Booking_System
             // panel2
             // 
             panel2.BackColor = SystemColors.InactiveBorder;
+            panel2.Controls.Add(lblStayDuration);
             panel2.Controls.Add(button1);
             panel2.Controls.Add(label6);
             panel2.Controls.Add(label5);
@@ -130,6 +147,18 @@ namespace Hotel_Booking_System
             panel2.Size = new Size(1405, 139);
             panel2.TabIndex = 2;
             panel2.Paint += panel2_Paint;
+            // 
+            // lblStayDuration
+            // 
+            lblStayDuration.AutoSize = true;
+            lblStayDuration.BackColor = Color.Transparent;
+            lblStayDuration.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblStayDuration.ForeColor = Color.FromArgb(23, 45, 80);
+            lblStayDuration.Location = new Point(452, 104);
+            lblStayDuration.Name = "lblStayDuration";
+            lblStayDuration.Size = new Size(217, 25);
+            lblStayDuration.TabIndex = 15;
+            lblStayDuration.Text = "🌙 1 night stay (2 days)";
             // 
             // button1
             // 
@@ -489,7 +518,7 @@ namespace Hotel_Booking_System
             panel3.Location = new Point(835, 336);
             panel3.Margin = new Padding(3, 2, 3, 2);
             panel3.Name = "panel3";
-            panel3.Size = new Size(1046, 673);
+            panel3.Size = new Size(1046, 632);
             panel3.TabIndex = 3;
             panel3.Paint += panel3_Paint;
             // 
@@ -550,11 +579,14 @@ namespace Hotel_Booking_System
             // 
             // panel1
             // 
+            panel1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel1.BackColor = Color.FromArgb(23, 45, 80);
             panel1.Controls.Add(pictureBox6);
-            panel1.Location = new Point(-4, 43);
+            panel1.Controls.Add(flpNavLeft);
+            panel1.Controls.Add(flpNavRight);
+            panel1.Location = new Point(0, 43);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1925, 70);
+            panel1.Size = new Size(1920, 70);
             panel1.TabIndex = 5;
             panel1.Paint += panel1_Paint_1;
             // 
@@ -566,6 +598,223 @@ namespace Hotel_Booking_System
             pictureBox6.Size = new Size(99, 66);
             pictureBox6.TabIndex = 13;
             pictureBox6.TabStop = false;
+            // 
+            // flpNavLeft
+            // 
+            flpNavLeft.AutoSize = true;
+            flpNavLeft.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            flpNavLeft.BackColor = Color.Transparent;
+            flpNavLeft.Controls.Add(btnNavHome);
+            flpNavLeft.Controls.Add(btnNavRooms);
+            flpNavLeft.Controls.Add(btnNavMyBookings);
+            flpNavLeft.Controls.Add(btnNavAbout);
+            flpNavLeft.Controls.Add(btnNavContact);
+            flpNavLeft.Location = new Point(145, 13);
+            flpNavLeft.Name = "flpNavLeft";
+            flpNavLeft.Size = new Size(774, 50);
+            flpNavLeft.TabIndex = 6;
+            flpNavLeft.WrapContents = false;
+            // 
+            // btnNavHome
+            // 
+            btnNavHome.AutoSize = true;
+            btnNavHome.Cursor = Cursors.Hand;
+            btnNavHome.FlatAppearance.BorderSize = 0;
+            btnNavHome.FlatAppearance.MouseOverBackColor = Color.FromArgb(35, 65, 110);
+            btnNavHome.FlatStyle = FlatStyle.Flat;
+            btnNavHome.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnNavHome.ForeColor = Color.White;
+            btnNavHome.Location = new Point(3, 0);
+            btnNavHome.Margin = new Padding(3, 0, 8, 0);
+            btnNavHome.Name = "btnNavHome";
+            btnNavHome.Padding = new Padding(12, 6, 12, 6);
+            btnNavHome.Size = new Size(102, 50);
+            btnNavHome.TabIndex = 14;
+            btnNavHome.Text = "Home";
+            btnNavHome.UseMnemonic = false;
+            btnNavHome.UseVisualStyleBackColor = true;
+            btnNavHome.Click += btnNavHome_Click;
+            // 
+            // btnNavRooms
+            // 
+            btnNavRooms.AutoSize = true;
+            btnNavRooms.Cursor = Cursors.Hand;
+            btnNavRooms.FlatAppearance.BorderSize = 0;
+            btnNavRooms.FlatAppearance.MouseOverBackColor = Color.FromArgb(35, 65, 110);
+            btnNavRooms.FlatStyle = FlatStyle.Flat;
+            btnNavRooms.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnNavRooms.ForeColor = Color.White;
+            btnNavRooms.Location = new Point(116, 0);
+            btnNavRooms.Margin = new Padding(3, 0, 8, 0);
+            btnNavRooms.Name = "btnNavRooms";
+            btnNavRooms.Padding = new Padding(12, 6, 12, 6);
+            btnNavRooms.Size = new Size(196, 50);
+            btnNavRooms.TabIndex = 15;
+            btnNavRooms.Text = "Rooms & Suites";
+            btnNavRooms.UseMnemonic = false;
+            btnNavRooms.UseVisualStyleBackColor = true;
+            btnNavRooms.Click += btnNavRooms_Click;
+            // 
+            // btnNavMyBookings
+            // 
+            btnNavMyBookings.AutoSize = true;
+            btnNavMyBookings.Cursor = Cursors.Hand;
+            btnNavMyBookings.FlatAppearance.BorderSize = 0;
+            btnNavMyBookings.FlatAppearance.MouseOverBackColor = Color.FromArgb(35, 65, 110);
+            btnNavMyBookings.FlatStyle = FlatStyle.Flat;
+            btnNavMyBookings.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnNavMyBookings.ForeColor = Color.White;
+            btnNavMyBookings.Location = new Point(323, 0);
+            btnNavMyBookings.Margin = new Padding(3, 0, 8, 0);
+            btnNavMyBookings.Name = "btnNavMyBookings";
+            btnNavMyBookings.Padding = new Padding(12, 6, 12, 6);
+            btnNavMyBookings.Size = new Size(169, 50);
+            btnNavMyBookings.TabIndex = 16;
+            btnNavMyBookings.Text = "My Bookings";
+            btnNavMyBookings.UseMnemonic = false;
+            btnNavMyBookings.UseVisualStyleBackColor = true;
+            btnNavMyBookings.Click += btnNavMyBookings_Click;
+            // 
+            // btnNavAbout
+            // 
+            btnNavAbout.AutoSize = true;
+            btnNavAbout.Cursor = Cursors.Hand;
+            btnNavAbout.FlatAppearance.BorderSize = 0;
+            btnNavAbout.FlatAppearance.MouseOverBackColor = Color.FromArgb(35, 65, 110);
+            btnNavAbout.FlatStyle = FlatStyle.Flat;
+            btnNavAbout.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnNavAbout.ForeColor = Color.White;
+            btnNavAbout.Location = new Point(503, 0);
+            btnNavAbout.Margin = new Padding(3, 0, 8, 0);
+            btnNavAbout.Name = "btnNavAbout";
+            btnNavAbout.Padding = new Padding(12, 6, 12, 6);
+            btnNavAbout.Size = new Size(133, 50);
+            btnNavAbout.TabIndex = 17;
+            btnNavAbout.Text = "About Us";
+            btnNavAbout.UseMnemonic = false;
+            btnNavAbout.UseVisualStyleBackColor = true;
+            btnNavAbout.Click += btnNavAbout_Click;
+            // 
+            // btnNavContact
+            // 
+            btnNavContact.AutoSize = true;
+            btnNavContact.Cursor = Cursors.Hand;
+            btnNavContact.FlatAppearance.BorderSize = 0;
+            btnNavContact.FlatAppearance.MouseOverBackColor = Color.FromArgb(35, 65, 110);
+            btnNavContact.FlatStyle = FlatStyle.Flat;
+            btnNavContact.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnNavContact.ForeColor = Color.White;
+            btnNavContact.Location = new Point(647, 0);
+            btnNavContact.Margin = new Padding(3, 0, 8, 0);
+            btnNavContact.Name = "btnNavContact";
+            btnNavContact.Padding = new Padding(12, 6, 12, 6);
+            btnNavContact.Size = new Size(119, 50);
+            btnNavContact.TabIndex = 18;
+            btnNavContact.Text = "Contact";
+            btnNavContact.UseMnemonic = false;
+            btnNavContact.UseVisualStyleBackColor = true;
+            btnNavContact.Click += btnNavContact_Click;
+            // 
+            // flpNavRight
+            // 
+            flpNavRight.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            flpNavRight.AutoSize = true;
+            flpNavRight.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            flpNavRight.BackColor = Color.Transparent;
+            flpNavRight.Controls.Add(btnAdminPortal);
+            flpNavRight.Controls.Add(btnSignIn);
+            flpNavRight.Controls.Add(pnlUserSession);
+            flpNavRight.Location = new Point(1171, 13);
+            flpNavRight.Name = "flpNavRight";
+            flpNavRight.Size = new Size(719, 52);
+            flpNavRight.TabIndex = 7;
+            flpNavRight.WrapContents = false;
+            // 
+            // btnAdminPortal
+            // 
+            btnAdminPortal.AutoSize = true;
+            btnAdminPortal.Cursor = Cursors.Hand;
+            btnAdminPortal.FlatAppearance.BorderColor = Color.FromArgb(70, 105, 150);
+            btnAdminPortal.FlatAppearance.MouseOverBackColor = Color.FromArgb(35, 65, 110);
+            btnAdminPortal.FlatStyle = FlatStyle.Flat;
+            btnAdminPortal.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnAdminPortal.ForeColor = Color.LightSteelBlue;
+            btnAdminPortal.Location = new Point(3, 0);
+            btnAdminPortal.Margin = new Padding(3, 0, 12, 0);
+            btnAdminPortal.Name = "btnAdminPortal";
+            btnAdminPortal.Padding = new Padding(14, 6, 14, 6);
+            btnAdminPortal.Size = new Size(211, 52);
+            btnAdminPortal.TabIndex = 19;
+            btnAdminPortal.Text = "🔒 Admin Portal";
+            btnAdminPortal.UseMnemonic = false;
+            btnAdminPortal.UseVisualStyleBackColor = true;
+            btnAdminPortal.Click += btnAdminPortal_Click;
+            // 
+            // btnSignIn
+            // 
+            btnSignIn.AutoSize = true;
+            btnSignIn.BackColor = Color.White;
+            btnSignIn.Cursor = Cursors.Hand;
+            btnSignIn.FlatAppearance.BorderSize = 0;
+            btnSignIn.FlatStyle = FlatStyle.Flat;
+            btnSignIn.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnSignIn.ForeColor = Color.FromArgb(23, 45, 80);
+            btnSignIn.Location = new Point(229, 0);
+            btnSignIn.Margin = new Padding(3, 0, 20, 0);
+            btnSignIn.Name = "btnSignIn";
+            btnSignIn.Padding = new Padding(18, 6, 18, 6);
+            btnSignIn.Size = new Size(222, 52);
+            btnSignIn.TabIndex = 20;
+            btnSignIn.Text = "Sign In / Register";
+            btnSignIn.UseMnemonic = false;
+            btnSignIn.UseVisualStyleBackColor = false;
+            btnSignIn.Click += btnSignIn_Click;
+            // 
+            // pnlUserSession
+            // 
+            pnlUserSession.AutoSize = true;
+            pnlUserSession.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            pnlUserSession.BackColor = Color.Transparent;
+            pnlUserSession.Controls.Add(lblUserGreeting);
+            pnlUserSession.Controls.Add(btnLogout);
+            pnlUserSession.Location = new Point(474, 1);
+            pnlUserSession.Margin = new Padding(3, 1, 20, 1);
+            pnlUserSession.Name = "pnlUserSession";
+            pnlUserSession.Size = new Size(225, 47);
+            pnlUserSession.TabIndex = 21;
+            pnlUserSession.Visible = false;
+            pnlUserSession.WrapContents = false;
+            // 
+            // lblUserGreeting
+            // 
+            lblUserGreeting.AutoSize = true;
+            lblUserGreeting.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblUserGreeting.ForeColor = Color.White;
+            lblUserGreeting.Location = new Point(3, 8);
+            lblUserGreeting.Margin = new Padding(3, 8, 12, 0);
+            lblUserGreeting.Name = "lblUserGreeting";
+            lblUserGreeting.Size = new Size(98, 28);
+            lblUserGreeting.TabIndex = 0;
+            lblUserGreeting.Text = "Hi, Guest";
+            // 
+            // btnLogout
+            // 
+            btnLogout.AutoSize = true;
+            btnLogout.BackColor = Color.FromArgb(192, 57, 43);
+            btnLogout.Cursor = Cursors.Hand;
+            btnLogout.FlatAppearance.BorderSize = 0;
+            btnLogout.FlatStyle = FlatStyle.Flat;
+            btnLogout.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnLogout.ForeColor = Color.White;
+            btnLogout.Location = new Point(116, 2);
+            btnLogout.Margin = new Padding(3, 2, 3, 2);
+            btnLogout.Name = "btnLogout";
+            btnLogout.Padding = new Padding(12, 4, 12, 4);
+            btnLogout.Size = new Size(106, 43);
+            btnLogout.TabIndex = 1;
+            btnLogout.Text = "Logout";
+            btnLogout.UseVisualStyleBackColor = false;
+            btnLogout.Click += btnLogout_Click;
             // 
             // lblTriggerAdults
             // 
@@ -643,7 +892,14 @@ namespace Hotel_Booking_System
             ((System.ComponentModel.ISupportInitialize)pictureBox_close).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox_min).EndInit();
             panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox6).EndInit();
+            flpNavLeft.ResumeLayout(false);
+            flpNavLeft.PerformLayout();
+            flpNavRight.ResumeLayout(false);
+            flpNavRight.PerformLayout();
+            pnlUserSession.ResumeLayout(false);
+            pnlUserSession.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox5).EndInit();
             ResumeLayout(false);
             PerformLayout();
@@ -707,5 +963,18 @@ namespace Hotel_Booking_System
         private Button button1;
         private PictureBox pictureBox5;
         private PictureBox pictureBox6;
+        private Label lblStayDuration;
+        private FlowLayoutPanel flpNavLeft;
+        private Button btnNavHome;
+        private Button btnNavRooms;
+        private Button btnNavMyBookings;
+        private Button btnNavAbout;
+        private Button btnNavContact;
+        private FlowLayoutPanel flpNavRight;
+        private Button btnAdminPortal;
+        private Button btnSignIn;
+        private FlowLayoutPanel pnlUserSession;
+        private Label lblUserGreeting;
+        private Button btnLogout;
     }
 }

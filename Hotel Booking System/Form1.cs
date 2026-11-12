@@ -21,11 +21,20 @@ namespace Hotel_Booking_System
             // Set initial check-out minimum to tomorrow
             dtpCheckOut.MinDate = DateTime.Today.AddDays(1);
             dtpCheckOut.Value = DateTime.Today.AddDays(1);
+
+            UpdateStayDuration();
+
+            // Subscribe to session authentication changes
+            SessionManager.OnSessionChanged += UpdateUserSessionUI;
+            UpdateUserSessionUI();
+
+            panel1.Resize += (s, e) => CenterNavbarControls();
+            CenterNavbarControls();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            
+            CenterNavbarControls();
         }
 
 
@@ -68,14 +77,18 @@ namespace Hotel_Booking_System
 
         private void pictureBox_min_MouseEnter(object sender, EventArgs e)
         {
-            PictureBox pic = sender as PictureBox;
-            pic.BackColor = Color.LightGray;
+            if (sender is PictureBox pic)
+            {
+                pic.BackColor = Color.LightGray;
+            }
         }
 
         private void pictureBox_min_MouseLeave(object sender, EventArgs e)
         {
-            PictureBox pic = sender as PictureBox;
-            pic.BackColor = Color.Transparent;
+            if (sender is PictureBox pic)
+            {
+                pic.BackColor = Color.Transparent;
+            }
         }
 
         private void panel4_Paint(object sender, PaintEventArgs e)
@@ -127,19 +140,34 @@ namespace Hotel_Booking_System
         private void dtpCheckIn_ValueChanged(object sender, EventArgs e)
         {
             // Ensure check-out minimum date is at least the day after check-in
-            dtpCheckOut.MinDate = dtpCheckIn.Value.AddDays(1);
+            dtpCheckOut.MinDate = dtpCheckIn.Value.Date.AddDays(1);
 
-            // If the current check-out date is now older than the new check-in date,
+            // If the current check-out date is now older than or equal to the new check-in date,
             // automatically push check-out forward by 1 day
-            if (dtpCheckOut.Value < dtpCheckIn.Value)
+            if (dtpCheckOut.Value.Date <= dtpCheckIn.Value.Date)
             {
-                dtpCheckOut.Value = dtpCheckIn.Value.AddDays(1);
+                dtpCheckOut.Value = dtpCheckIn.Value.Date.AddDays(1);
             }
+
+            UpdateStayDuration();
         }
 
         private void dtpCheckOut_ValueChanged(object sender, EventArgs e)
         {
+            UpdateStayDuration();
+        }
 
+        private void UpdateStayDuration()
+        {
+            int nights = (dtpCheckOut.Value.Date - dtpCheckIn.Value.Date).Days;
+            if (nights <= 0)
+            {
+                nights = 1;
+            }
+
+            string nightText = nights == 1 ? "1 night" : $"{nights} nights";
+            string dayText = (nights + 1) == 1 ? "1 day" : $"{nights + 1} days";
+            lblStayDuration.Text = $"🌙 {nightText} stay ({dayText})";
         }
 
         private void label1_Click_2(object sender, EventArgs e)
@@ -285,6 +313,123 @@ namespace Hotel_Booking_System
             string roomText = rooms == 1 ? "1 room" : $"{rooms} rooms";
             label6.Text = roomText;
         }
+
+        #region Navigation & Authentication Event Handlers
+
+        private void UpdateUserSessionUI()
+        {
+            if (SessionManager.IsLoggedIn)
+            {
+                btnSignIn.Visible = false;
+                pnlUserSession.Visible = true;
+                lblUserGreeting.Text = $"Hi, {SessionManager.CurrentUserName}";
+
+                if (SessionManager.CurrentUserRole == "Admin")
+                {
+                    btnAdminPortal.Visible = true;
+                    btnAdminPortal.Text = "📊 Open Dashboard";
+                }
+                else
+                {
+                    btnAdminPortal.Visible = false;
+                }
+            }
+            else
+            {
+                btnAdminPortal.Text = "🔒 Admin Portal";
+                btnAdminPortal.Visible = true;
+                btnSignIn.Visible = true;
+                pnlUserSession.Visible = false;
+            }
+
+            CenterNavbarControls();
+        }
+
+        private void CenterNavbarControls()
+        {
+            if (panel1 == null) return;
+            int h = panel1.ClientSize.Height;
+
+            if (pictureBox6 != null)
+            {
+                pictureBox6.Top = Math.Max(0, (h - pictureBox6.Height) / 2);
+            }
+
+            if (flpNavLeft != null)
+            {
+                flpNavLeft.Top = Math.Max(0, (h - flpNavLeft.Height) / 2);
+            }
+
+            if (flpNavRight != null)
+            {
+                flpNavRight.Top = Math.Max(0, (h - flpNavRight.Height) / 2);
+            }
+        }
+
+        private void btnNavHome_Click(object sender, EventArgs e)
+        {
+            cmbDestination.Focus();
+        }
+
+        private void btnNavRooms_Click(object sender, EventArgs e)
+        {
+            using var roomsForm = new RoomsForm();
+            roomsForm.ShowDialog(this);
+        }
+
+        private void btnNavMyBookings_Click(object sender, EventArgs e)
+        {
+            using var bookingsForm = new MyBookingsForm();
+            bookingsForm.ShowDialog(this);
+        }
+
+        private void btnNavAbout_Click(object sender, EventArgs e)
+        {
+            using var aboutForm = new AboutForm();
+            aboutForm.ShowDialog(this);
+        }
+
+        private void btnNavContact_Click(object sender, EventArgs e)
+        {
+            using var contactForm = new ContactForm();
+            contactForm.ShowDialog(this);
+        }
+
+        private void btnSignIn_Click(object sender, EventArgs e)
+        {
+            using var authForm = new AuthForm(initialTab: 0);
+            authForm.ShowDialog(this);
+        }
+
+        private void btnAdminPortal_Click(object sender, EventArgs e)
+        {
+            if (SessionManager.IsLoggedIn && SessionManager.CurrentUserRole == "Admin")
+            {
+                using var adminDashboard = new AdminDashboardForm();
+                adminDashboard.ShowDialog(this);
+            }
+            else
+            {
+                using var authForm = new AuthForm(initialTab: 2);
+                authForm.ShowDialog(this);
+            }
+        }
+
+        private void btnLogout_Click(object sender, EventArgs e)
+        {
+            var result = MessageBox.Show(
+                "Are you sure you want to sign out?",
+                "Sign Out",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                SessionManager.Logout();
+            }
+        }
+
+        #endregion
 
     }
 }
